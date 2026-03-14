@@ -1,0 +1,1 @@
+src/app/kurslar/[level-slug]/page.tsx(11,8): error TS2613: Module '"C:/Users/meteh/OneDrive/Desktop/Yeni klas\u00F6r/antigravity/languageschool/frontend/src/components/landing/Header"' has no default export. Did you mean to use 'import { Header } from "C:/Users/meteh/OneDrive/Desktop/Yeni klas\u00F6r/antigravity/languageschool/frontend/src/components/landing/Header"' instead?

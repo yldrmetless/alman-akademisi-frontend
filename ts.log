@@ -1,0 +1,4 @@
+﻿src/app/dashboard/blog/edit/[id]/page.tsx(190,51): error TS2322: Type '{ title: string; content: string; categories: number[]; tags: string[]; image_url: string; image_public_id: string; }' is not assignable to type 'Partial<BlogPostDetail>'.
+  Types of property 'categories' are incompatible.
+    Type 'number[]' is not assignable to type 'Category[]'.
+      Type 'number' is not assignable to type 'Category'.
