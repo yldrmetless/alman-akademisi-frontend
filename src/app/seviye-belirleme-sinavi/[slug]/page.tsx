@@ -116,14 +116,7 @@ export default function ExamPage() {
         return toNumericId(question?.id);
     };
 
-    const getOptionId = (option: { id?: unknown; option_id?: unknown; pk?: unknown }, optionIndex: number): number => {
-        return (
-            toNumericId(option?.id) ??
-            toNumericId(option?.option_id) ??
-            toNumericId(option?.pk) ??
-            optionIndex + 1
-        );
-    };
+    const getStableOptionId = (optionIndex: number): number => optionIndex + 1;
 
     const renderStickyHeader = (examName?: string) => (
         <section className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm w-full">
@@ -265,7 +258,7 @@ export default function ExamPage() {
                 {/* Options Grid */}
                 <div className="space-y-4 mb-10">
                     {currentQuestion?.options?.map((option, optionIndex) => {
-                        const optionId = getOptionId(option as { id?: unknown; option_id?: unknown; pk?: unknown }, optionIndex);
+                        const optionId = getStableOptionId(optionIndex);
                         const isOptionSelected = optionId === selectedOptionId;
                         return (
                         <button
