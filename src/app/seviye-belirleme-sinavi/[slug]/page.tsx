@@ -46,6 +46,7 @@ export default function ExamPage() {
     });
     const [contactErrors, setContactErrors] = useState<Record<string, string>>({});
     const [isContactSubmitting, setIsContactSubmitting] = useState(false);
+    const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
 
     const handleContactSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -139,12 +140,17 @@ export default function ExamPage() {
     const hasNextQuestion = currentQuestionIndex < questions.length - 1;
     const currentAnswer = userAnswers.find(a => a.questionId === currentQuestion?.id);
 
+    useEffect(() => {
+        setSelectedOptionId(currentAnswer?.optionId ?? null);
+    }, [currentQuestion?.id, currentAnswer?.optionId]);
+
     // --- Action Handlers ---
     const handleStart = () => {
         dispatch(startExam(examData.time_limit));
     };
 
     const handleOptionSelect = (optionId: number, isCorrect: boolean) => {
+        setSelectedOptionId(optionId);
         dispatch(answerQuestion({
             questionId: currentQuestion.id,
             optionId,
@@ -212,11 +218,13 @@ export default function ExamPage() {
 
                 {/* Options Grid */}
                 <div className="space-y-4 mb-10">
-                    {currentQuestion.options.map((option) => (
+                    {currentQuestion.options.map((option, optionIndex) => {
+                        const isOptionSelected = option.id === selectedOptionId;
+                        return (
                         <button
-                            key={option.id}
+                            key={`${currentQuestion.id}-${option.id}-${optionIndex}`}
                             onClick={() => handleOptionSelect(option.id, option.is_correct)}
-                            className={`w-full text-left p-5 rounded-xl border-2 transition-all ${currentAnswer?.optionId === option.id
+                            className={`w-full text-left p-5 rounded-xl border-2 transition-all ${isOptionSelected
                                 ? 'border-[#1a365d] bg-[#1a365d]/5 shadow-md flex items-center justify-between'
                                 : 'border-slate-200 hover:border-[#1a365d]/50 hover:bg-slate-50'
                                 }`}
@@ -224,13 +232,13 @@ export default function ExamPage() {
                             <span className="text-base md:text-lg text-slate-700 font-medium">
                                 {option.text}
                             </span>
-                            {currentAnswer?.optionId === option.id && (
+                            {isOptionSelected && (
                                 <div className="h-6 w-6 rounded-full bg-[#1a365d] text-white flex items-center justify-center shadow-sm">
                                     <CheckCircle2 className="w-4 h-4" />
                                 </div>
                             )}
                         </button>
-                    ))}
+                    )})}
                 </div>
 
                 <div className="mt-auto pt-6 flex justify-end">

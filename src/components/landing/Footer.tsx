@@ -22,6 +22,27 @@ const corporateLinks = [
 const footerNavList = "space-y-2 text-sm text-slate-600";
 
 export function Footer({ logoSrc = "/logo.webp" }: FooterProps) {
+    const currentYear = new Date().getFullYear();
+    const developerLinkProps = {
+        href: "https://vizimagency.com",
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "inline-flex items-center gap-2 text-slate-500 transition-colors hover:text-[#1e3a8a]",
+    } as const;
+
+    const renderDeveloperCredit = () => (
+        <Link {...developerLinkProps} aria-label="Vizim Digital Agency">
+            <span className="font-medium">Developed by Vizim.</span>
+            <Image
+                src="/vizim.png"
+                alt="Vizim Digital Agency"
+                width={96}
+                height={24}
+                className="h-6 w-auto object-contain"
+            />
+        </Link>
+    );
+
     return (
         <footer className="bg-slate-50 border-t pt-16 pb-8">
             <div className="container mx-auto px-4 md:px-6 text-center">
@@ -123,8 +144,10 @@ export function Footer({ logoSrc = "/logo.webp" }: FooterProps) {
 
                 <div className="mt-2 border-t border-slate-200 bg-slate-100/60 rounded-xl px-4 py-3">
                     <div className="flex flex-col items-center justify-between gap-3 text-slate-500 text-xs sm:flex-row">
-                        <p>© {new Date().getFullYear()} Alman Akademisi. Tüm hakları korunmaktadır.</p>
-                        <div className="flex items-center gap-3">
+                        <p>{currentYear} Alman Akademisi. Tüm Hakları Saklıdır.</p>
+                        <div className="flex flex-wrap items-center justify-center gap-4">
+                            {renderDeveloperCredit()}
+                            <div className="flex items-center gap-3">
                             <span className="font-medium">Bağlantı kurun</span>
                             <Link
                                 href="https://instagram.com/almanakademisi"
@@ -144,6 +167,7 @@ export function Footer({ logoSrc = "/logo.webp" }: FooterProps) {
                             >
                                 <Linkedin className="h-4 w-4" />
                             </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
