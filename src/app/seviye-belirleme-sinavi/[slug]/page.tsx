@@ -26,6 +26,7 @@ export default function ExamPage() {
     const params = useParams();
     const router = useRouter();
     const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+    const [isMounted, setIsMounted] = useState(false);
 
     const dispatch = useDispatch();
     const {
@@ -37,6 +38,8 @@ export default function ExamPage() {
     } = useSelector((state: RootState) => state.examEngine);
 
     const { data: examData, isLoading } = useGetExamQuestionsQuery(slug!, { skip: !slug });
+    const examDataLoading = isLoading || !slug;
+    const safeWindowAccess = typeof window !== "undefined";
 
     const [contactForm, setContactForm] = useState({
         full_name: "",
@@ -77,9 +80,15 @@ export default function ExamPage() {
 
     // Ensure we start fresh when mounting a new exam page
     useEffect(() => {
+        setIsMounted(true);
         dispatch(resetExam());
         return () => { dispatch(resetExam()); };
     }, [dispatch, slug]);
+
+    useEffect(() => {
+        if (!isMounted) return;
+        console.log("[ExamPage] mounted", { slug, safeWindowAccess, phase, examDataLoading });
+    }, [isMounted, slug, safeWindowAccess, phase, examDataLoading]);
 
     // Timer logic binding native React Effect hooks to the Redux tick
     useEffect(() => {
@@ -113,7 +122,7 @@ export default function ExamPage() {
         </section>
     );
 
-    if (isLoading) {
+    if (!isMounted || examDataLoading) {
         return (
             <div className="min-h-screen flex flex-col bg-slate-50">
                 {renderStickyHeader()}
@@ -124,7 +133,18 @@ export default function ExamPage() {
         );
     }
 
-    if (!examData) {
+    if (!slug) {
+        return (
+            <div className="min-h-screen flex flex-col bg-slate-50">
+                {renderStickyHeader()}
+                <main className="flex-grow flex items-center justify-center">
+                    <p className="text-xl text-slate-600">Geçersiz sınav bağlantısı.</p>
+                </main>
+            </div>
+        );
+    }
+
+    if (!examData || !examData.questions || examData.questions.length === 0) {
         return (
             <div className="min-h-screen flex flex-col bg-slate-50">
                 {renderStickyHeader()}
@@ -135,7 +155,7 @@ export default function ExamPage() {
         );
     }
 
-    const { questions } = examData;
+    const questions = examData?.questions ?? [];
     const currentQuestion = questions[currentQuestionIndex];
     const hasNextQuestion = currentQuestionIndex < questions.length - 1;
     const currentAnswer = userAnswers.find(a => a.questionId === currentQuestion?.id);
@@ -150,6 +170,7 @@ export default function ExamPage() {
     };
 
     const handleOptionSelect = (optionId: number, isCorrect: boolean) => {
+        if (!currentQuestion?.id) return;
         setSelectedOptionId(optionId);
         dispatch(answerQuestion({
             questionId: currentQuestion.id,
@@ -218,7 +239,7 @@ export default function ExamPage() {
 
                 {/* Options Grid */}
                 <div className="space-y-4 mb-10">
-                    {currentQuestion.options.map((option, optionIndex) => {
+                    {currentQuestion?.options?.map((option, optionIndex) => {
                         const isOptionSelected = option.id === selectedOptionId;
                         return (
                         <button
@@ -238,7 +259,7 @@ export default function ExamPage() {
                                 </div>
                             )}
                         </button>
-                    )})}
+                    )}) || null}
                 </div>
 
                 <div className="mt-auto pt-6 flex justify-end">
@@ -302,10 +323,10 @@ export default function ExamPage() {
                         </CardContent>
                     </Card>
 
-                    {examData.description && (
+                    {examData?.description && (
                         <div
                             className="mt-8 bg-transparent prose prose-slate max-w-none break-words text-slate-700 leading-relaxed mx-auto w-full"
-                            dangerouslySetInnerHTML={{ __html: examData.description }}
+                            dangerouslySetInnerHTML={{ __html: examData?.description || "" }}
                         />
                     )}
                 </div>
